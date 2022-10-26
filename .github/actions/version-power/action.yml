@@ -1,0 +1,22 @@
+name: 'Version power'
+description: 'Figures out what your feature branch version is and what your main branch version will be.'
+inputs:
+  path-to-version:  # id of input
+    description: 'Path to __version__ file'
+    required: false
+    default: './'
+  token:  # id of input
+    description: 'Github Token'
+    required: true
+outputs:
+  new_version: # id of output
+    description: 'The new version'
+  old_version:
+    description: 'The previous version'
+  message:
+    description: 'If anything needs to be fixed'
+  presumptive_main_version:
+    description: 'Version if merged to main now (might change before merge)'
+runs:
+  using: 'node16'
+  main: 'index.js'

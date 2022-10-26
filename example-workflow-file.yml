@@ -1,0 +1,54 @@
+name: Version
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  versionbump:
+    runs-on: ubuntu-latest
+    steps:      
+      - uses: actions/checkout@v2
+        with:
+          # This is necessary so that we have the tags.
+          fetch-depth: 0
+      
+      - name: version generator
+        id: version-power
+        uses: ./.github/actions/version-power
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+      
+      - name: version file writer
+        id: version-file-power
+        uses: ./.github/actions/version-file-power
+        with:
+          version: ${{ steps.version-power.outputs.new_version }}
+
+      - name: Print out version info
+        run: echo "New version - ${{ steps.version-power.outputs.new_version }} --Old version - ${{ steps.version-power.outputs.old_version }}--Main version - ${{ steps.version-power.outputs.presumptive_main_version }} ${{github.ref_name}}"
+      
+      - name: Commit if not to main / master
+        if: ${{github.ref_name != 'main' && github.ref_name != 'master'}}
+        env: 
+          CI_COMMIT_MESSAGE: VERSION POWER ${{ steps.version-power.outputs.new_version }}
+          CI_COMMIT_AUTHOR: Version Bumper
+        run: |
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "username@users.noreply.github.com"
+          git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push
+      
+      - name: Commit and tag if main / master
+        if: ${{github.ref_name == 'main' || github.ref_name == 'master'}}
+        env: 
+          CI_COMMIT_MESSAGE: Version and tag ${{ steps.version-power.outputs.new_version }}
+          CI_COMMIT_AUTHOR: Version Bumper
+          TAG: v${{ steps.version-power.outputs.new_version }}
+        run: |
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "username@users.noreply.github.com"
+          git commit -a -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git tag -a ${{ env.TAG }} -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push
+          git push --tags
