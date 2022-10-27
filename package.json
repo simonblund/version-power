@@ -8,7 +8,8 @@
   "name": "version-power",
   "version": "1.0.0",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "ncc build index.js --license licenses.txt"
   },
   "keywords": [],
   "author": "",
