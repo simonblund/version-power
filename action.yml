@@ -19,4 +19,4 @@ outputs:
     description: 'Version if merged to main now (might change before merge)'
 runs:
   using: 'node16'
-  main: 'index.js'
+  main: 'dist/index.js'
